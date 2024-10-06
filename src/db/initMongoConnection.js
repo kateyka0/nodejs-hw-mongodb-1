@@ -1,20 +1,21 @@
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
+import { env } from '../env.js';
 
-dotenv.config();
-
-export const initMongoConnection = async () => {
-  const mongoUri = `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASSWORD}@${process.env.MONGODB_URL}/${process.env.MONGODB_DB}?retryWrites=true&w=majority`;
-
+export async function initMongoConnection() {
   try {
-    await mongoose.connect(mongoUri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    const user = env('MONGODB_USER');
+    const pwd = env('MONGODB_PASSWORD');
+    const url = env('MONGODB_URL');
+    const db = env('MONGODB_DB');
+
+    await mongoose.connect(
+      `mongodb+srv://${user}:${pwd}@${url}/${db}?retryWrites=true&w=majority`,
+    );
+
     console.log('Mongo connection successfully established!');
   } catch (error) {
-    console.error('Error connecting to MongoDB:', error.message);
-    process.exit(1);
+    console.log('Error while setting up mongo connection', error);
+    throw error;
   }
-};
+}
 
